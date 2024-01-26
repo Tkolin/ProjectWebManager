@@ -1,0 +1,125 @@
+﻿@model IEnumerable<Test.Models.Project>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Employee> UserManager
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    var user = await UserManager.GetUserAsync(User);
+    ViewBag.isManager = await UserManager.IsInRoleAsync(user, "projectmanager");
+    ViewBag.isSupervisor = await UserManager.IsInRoleAsync(user, "supervisor");
+    ViewBag.isEmployee = await UserManager.IsInRoleAsync(user, "employee");
+}
+<h1>Проекты</h1>
+<div>
+    @using (Html.BeginForm("Index", "Projects", FormMethod.Get))
+    {
+        <h>
+            Период от: @Html.TextBox("DateStartSearch", "", new { type = "date" })
+            до: @Html.TextBox("DateEndSearch", "", new { type = "date" })
+            Поиск по имени: @Html.TextBox("NameSearch", "")
+            <input type="submit" value="Search" />
+
+        </h>
+    }   
+    @if (ViewBag.isSupervisor)
+    {
+        <p>
+            <a asp-action="Create">Создать проект</a>
+        </p>
+    }
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.ActionLink("Название", "Index", new { sortOrder = ViewBag.NameSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Дата начала", "Index", new { sortOrder = ViewBag.DateStartSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Дата окончания", "Index", new { sortOrder = ViewBag.DateEndSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Приоритет", "Index", new { sortOrder = ViewBag.PrioritySortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Клиент ", "Index", new { sortOrder = ViewBag.CompaniesCutomerSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Исполнитель", "Index", new { sortOrder = ViewBag.ImplementingCutomerSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Директор", "Index", new { sortOrder = ViewBag.ProjectDirectorSortParm })
+            </th>
+            @{
+                if (!ViewBag.isEmployee)
+                {
+                    <th>
+                        Задачи
+                    </th>
+                    <th>
+                        Сотрудники
+                    </th>
+                    <th>
+                        Взаимодействие
+                    </th>
+                }
+         }
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                    @item.DateStart.ToString("dd.MM.yyyy")
+                </td>
+            <td>
+                    @item.DateEnd.ToString("dd.MM.yyyy")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                 @Html.DisplayFor(modelItem => item.CompaniesCutomer.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ImplementingCutomer.Name)
+            </td>
+            <td>
+                @item.ProjectDirector.LastName  @item.ProjectDirector.FirstName
+            </td>
+        @{
+            if (!ViewBag.isEmployee)
+            {
+            <td>
+                    @Html.DisplayFor(modelItem => item.ProjectTask.Count)
+                    <a asp-area="" asp-controller="Tasks" asp-action="Index" asp-route-projectId="@item.Id">Подробней</a>
+            </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmployeeToProjects.Count)
+                    <a asp-action="DetailsEmployeeToProjects" asp-route-id="@item.Id">Подробней</a>
+                </td>
+            <td>
+
+                <a asp-action="Details" asp-route-id="@item.Id">Подробней</a> |
+                    @if (ViewBag.isSupervisor)
+                    {
+                        <div>
+                            <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a> |
+                            <a asp-action="Edit" asp-route-id="@item.Id">Редактирование</a> |
+                        </div>
+                    }
+            </td>
+                    }}
+        </tr>
+}
+    </tbody>
+</table>

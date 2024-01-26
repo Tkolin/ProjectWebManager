@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Test.Models.Employee>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Сотрудники</h1>
+
+<p>
+    <a asp-area="Identity" asp-page="/Account/Register">Зарегистрировать сотрудника</a>
+</p>
+<div>
+    @using (Html.BeginForm("Index", "Employees", FormMethod.Get))
+    {
+        <h>
+            Поиск по имени: @Html.TextBox("NameSearch", "")
+            <input type="submit" value="Search" />
+
+        </h>
+    }
+</div>
+<table class="table">
+    <thead>
+        <tr>
+
+            <th>
+                @Html.ActionLink("Имя", "Index", new { sortOrder = ViewBag.FirstNameParm })
+            </th>
+            <th>
+                @Html.ActionLink("Фамилия", "Index", new { sortOrder = ViewBag.LastNameParm })
+            </th>
+            <th>
+                @Html.ActionLink("Отчество", "Index", new { sortOrder = ViewBag.PatronymicParm })
+            </th>
+            <th>
+                @Html.ActionLink("Email", "Index", new { sortOrder = ViewBag.EmailParm })
+            </th>
+
+            <th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Patronymic)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Подробней</a> |
+                @using (Html.BeginForm())
+                {
+
+                    @Html.Display("  ")
+                    ;
+                    <input type="submit" asp-action="Delete" asp-route-id="@item.Id" value="Удалить" />
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

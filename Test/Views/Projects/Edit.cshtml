@@ -1,0 +1,66 @@
+﻿@model Test.Models.Project
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Редактирование</h1>
+
+<h4>Проект:</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" asp-controller="Projects" asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Название</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompaniesCutomerId" class="control-label">Клиент</label>
+                <select asp-for="CompaniesCutomerId" class="form-control" asp-items="ViewBag.CompaniesCutomerId"></select>
+                <span asp-validation-for="CompaniesCutomerId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImplementingCutomerId" class="control-label">Исполнитель</label>
+                <select asp-for="ImplementingCutomerId" class="form-control" asp-items="ViewBag.ImplementingCutomerId"></select>
+                <span asp-validation-for="ImplementingCutomerId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateStart" class="control-label">Дата начала</label>
+                <input asp-for="DateStart" class="form-control" />
+                <span asp-validation-for="DateStart" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateEnd" class="control-label">Дата окончания</label>
+                <input asp-for="DateEnd" class="form-control" />
+                <span asp-validation-for="DateEnd" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Priority" class="control-label">Приоритет</label>
+                <input asp-for="Priority" class="form-control" />
+                <span asp-validation-for="Priority" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProjectDirectorId" class="control-label">Директор</label>
+                <select asp-for="ProjectDirectorId" class="form-control" asp-items="ViewBag.ProjectDirectorId"></select>
+                <span asp-validation-for="ProjectDirectorId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+
+                    <input type="submit" value="Сохранить" class="btn btn-primary" />
+               
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Вернуться к списку</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

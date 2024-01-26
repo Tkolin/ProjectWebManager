@@ -1,0 +1,243 @@
+﻿@model Test.Models.Project
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Создать проект</h1>
+
+<div id="app">
+    <!-- Step 1 -->
+    <div v-show="currentStep === 1">
+        <h4>Шаг 1: Детали проекта</h4>
+        <form v-on:submit.prevent="nextStep">
+            <!-- Form fields for Step 1 -->
+            <div class="form-group">
+                <label for="projectName">Название проекта</label>
+                <input v-model="projectData.Name" type="text" class="form-control" id="projectName" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Далее</button>
+        </form>
+    </div>
+
+    <!-- Step 2 -->
+    <div v-show="currentStep === 2">
+        <h4>Шаг 2: Детали заказчика</h4>
+        <form v-on:submit.prevent="nextStep">
+            <!-- Form fields for Step 2 -->
+            <div class="form-group">
+                <label for="companiesCustomers">Заказчик</label>
+                <v-select v-model="selectedCustomer"
+                          :options="companiesCustomer"
+                          label="name"
+                          value="id"
+                          placeholder="Поиск компании..."
+                          v-on:search="searchCompaniesCustomer"></v-select>
+            </div>
+            <button v-on:click.prevent="prevStep" class="btn btn-secondary">Назад</button>
+            <button type="submit" class="btn btn-primary">Далее</button>
+        </form>
+    </div>
+
+    <!-- Step 3 -->
+    <div v-show="currentStep === 3">
+        <h4>Шаг 3: Детали исполнителя</h4>
+        <form v-on:submit.prevent="nextStep">
+            <!-- Form fields for Step 3 -->
+            <div class="form-group">
+                <label for="companiesImplementings">Исполнитель</label>
+                <v-select v-model="selectedImplementing"
+                          :options="companiesImplementing"
+                          label="name"
+                          value="id"
+                          placeholder="Поиск компании..."
+                          v-on:search="searchCompaniesImplementing"></v-select>
+            </div>
+            <button v-on:click.prevent="prevStep" class="btn btn-secondary">Назад</button>
+            <button type="submit" class="btn btn-primary">Далее</button>
+        </form>
+    </div>
+
+    <!-- Step 4 -->
+    <div v-show="currentStep === 4">
+        <h4>Шаг 4: Детали проекта</h4>
+        <form v-on:submit.prevent="nextStep">
+            <!-- Form fields for Step 4 -->
+            <div class="form-group">
+                <!-- Form fields for Step 4 -->
+                <div class="form-group">
+                    <label for="dateStart">Дата начала</label>
+                    <input v-model="projectData.DateStart" type="date" class="form-control" id="dateStart" required>
+                </div>
+                <div class="form-group">
+                    <label for="dateEnd">Дата окончания</label>
+                    <input v-model="projectData.DateEnd" type="date" class="form-control" id="dateEnd" required>
+                </div>
+                <div class="form-group">
+                    <label for="priority">Приоритет</label>
+                    <input v-model="projectData.Priority" type="number" class="form-control" id="priority" required>
+                </div>
+            </div>
+            <!-- Add other form fields for Step 4 -->
+
+            <button v-on:click.prevent="prevStep" class="btn btn-secondary">Назад</button>
+            <button type="submit" class="btn btn-primary">Далее</button>
+        </form>
+    </div>
+    <!-- Final Step -->
+    <div v-show="currentStep === 5">
+        <h4>Step 5: Директор проекта и документация</h4>
+        <form v-on:submit.prevent="submitForm">
+            <div class="form-group">
+                <label for="projectDirector">Директор проекта</label>
+                <v-select v-model="selectedDirector"
+                          :options="employees"
+                          label="fullName"
+                          value="id"
+                          placeholder="Поиск сотрудника..."
+                          v-on:search="searchEmployees"></v-select>
+            </div>
+            <!-- Drop zone for drag & drop -->
+            <div class="form-group">
+                <label for="fileUploader">Загрузка файлов</label>
+                <vue-dropzone id="fileUploader"
+                              ref="myVueDropzone"
+                              :options="dropzoneOptions"
+                              v-on:vdropzone-file-added="handleFileAdded"
+                              v-on:vdropzone-error="handleFileError"></vue-dropzone>
+            </div>
+            <button v-on:click.prevent="prevStep" class="btn btn-secondary">Назад</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue2-dropzone@3.6.0/dist/vue2Dropzone.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+
+<script src="https://unpkg.com/vue-select@3.0.0"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-select@3.0.0/dist/vue-select.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue2-dropzone@3.6.0/dist/vue2Dropzone.min.css">
+<script>
+    Vue.component('v-select', VueSelect.VueSelect);
+    Vue.component('vue-dropzone', vue2Dropzone);
+    new Vue({
+        el: '#app',
+        data: {
+            currentStep: 1,
+            projectData: {
+                Name: '',
+                CompaniesCutomerId: 0,
+                ImplementingCutomerId: 0,
+                DateStart: '',
+                DateEnd: '',
+                Priority: 0,
+                ProjectDirectorId: 0
+            },
+            companiesImplementing: [], 
+            companiesCustomer: [],  
+            employees: [],   
+            dropzoneOptions: {
+                url: '/Projects/UploadFiles',
+                maxFilesize: 10, // MB
+                acceptedFiles: '.pdf,.doc,.docx',
+            },
+            selectedCustomer: null,
+            selectedImplementing: null,
+            selectedDirector: null
+        },
+        watch: {
+            selectedCustomer(value) {
+                this.projectData.CompaniesCutomerId = value ? value.id : null;
+            },
+            selectedImplementing(value) {
+                this.projectData.ImplementingCutomerId = value ? value.id : null;
+            },
+            selectedDirector(value) {
+                this.projectData.ProjectDirectorId = value ? value.id : null;
+            }
+        },
+        methods: {
+            nextStep() {
+                this.currentStep++;
+            },
+            prevStep() {
+                this.currentStep--;
+            },
+            submitForm() {
+
+                console.log("пук пук" + this.projectData.Name);
+
+                this.saveProject();
+            },
+            saveProject() {
+                const formData = new FormData();
+
+                formData.append('projectData', JSON.stringify(this.projectData));
+
+                const files = this.$refs.myVueDropzone.getAcceptedFiles();
+                for (const file of files) {
+                    formData.append('files', file);
+                }
+
+                axios.post('/Projects/SaveProject', formData)
+                    .then(response => {
+                        console.log('Project saved successfully:', response.data);
+                    })
+                    .catch(error => {
+                        console.error('Error saving project:', error.response.data);
+                    });
+            },
+            searchCompaniesCustomer(query) {
+                axios.get(`/Projects/SearchCompanies?query=${query}`)
+                    .then(response => {
+                        this.companiesCustomer = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error searching companies:', error);
+                    });
+            },
+            searchCompaniesImplementing(query) {
+                axios.get(`/Projects/SearchCompanies?query=${query}`)
+                    .then(response => {
+                        this.companiesImplementing = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error searching companies:', error);
+                    });
+            },
+            searchEmployees(query) {
+                axios.get(`/Projects/SearchEmployees?query=${query}`)
+                    .then(response => {
+                        this.employees = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error searching employees:', error);
+                    });
+            },
+            handleFileAdded(file) {
+                // Обработка добавления файла
+                console.log('File added:', file);
+            },
+
+            handleFileError(file, errorMessage) {
+                // Обработка ошибок загрузки файла
+                console.error(`Error uploading file ${file.name}: ${errorMessage}`);
+            },
+            UploadFiles() {
+
+            },
+            handleCompaniesCutomerSelection(value) {
+                this.projectData.CompaniesCutomerId = value.id;
+            }
+
+
+        }
+    });
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,107 @@
+﻿@model Test.Models.Project
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Детали</h1>
+
+<div>
+    <h4>Проекта</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            Наименование
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            Дата начала
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DateStart)
+        </dd>
+        <dt class = "col-sm-2">
+            Дата окончания
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DateEnd)
+        </dd>
+        <dt class = "col-sm-2">
+           Приоритет
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Priority)
+        </dd>
+        <dt class = "col-sm-2">
+            Компания - заказчик
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CompaniesCutomer.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            Компания - исполнитель
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ImplementingCutomer.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            Главный деректор
+        </dt>
+        <dd class = "col-sm-10">
+            @Model.ProjectDirector.LastName    @Model.ProjectDirector.FirstName
+        </dd>
+        <dt class="col-sm-2">
+            Список сотрудников
+        </dt>
+       
+        <dd class="col-sm-10">
+            Фамилия Имя
+            @foreach (var employeeToProject in Model.EmployeeToProjects)
+            {   <dir>
+                    @employeeToProject.Employee.LastName @employeeToProject.Employee.FirstName
+                </dir>
+
+            }
+        </dd>
+        
+        <dt class="col-sm-2">
+            Список задач
+        </dt>
+        
+        <dd class="col-sm-10">
+            Автор | Исполнитель | Статус | Приоритет
+            @foreach (var task in Model.ProjectTask)
+            {
+                try
+                {
+                    <dir>
+                        @task.Author.LastName @task.Author.FirstName | @task.Executor.LastName @task.Executor.FirstName | @task.StatusTask.Name | @task.Priority
+                    </dir>
+                }
+                catch
+                {
+                    
+                }
+            }
+        </dd>
+        <dt class="col-sm-2">
+            Список документов
+        </dt>
+
+        <dd class="col-sm-10">
+            Название
+            @foreach (var task in Model.DocumentsToProjects)
+            {
+                <dir>
+                    @task.Document.Name
+                </dir>
+            }
+        </dd>
+        
+    </dl>
+</div>
+<div>
+    <a asp-action="Index">Назад к списку</a>
+</div>

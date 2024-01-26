@@ -1,0 +1,102 @@
+﻿@model IEnumerable<Test.Models.Task>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Employee> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    ViewBag.isManager = await UserManager.IsInRoleAsync(user, "projectmanager");
+    ViewBag.isSupervisor = await UserManager.IsInRoleAsync(user, "supervisor");
+    ViewBag.isEmployee = await UserManager.IsInRoleAsync(user, "employee");
+}
+<h1>Список задач @ViewBag.ProjectNameLink @ViewBag.EmployeeNameLink</h1>
+@{
+    if (!ViewBag.isEmployee)
+    {
+        if (ViewBag.ProjectId != null)
+        {
+            <p>
+                <a asp-action="Create" asp-route-id=@ViewBag.ProjectId>Создать задачу</a>
+            </p>
+        }
+        else
+        {
+            <p>
+                <a asp-action="Create">Создать задачу</a>
+            </p>
+        }
+    }
+}
+@using (Html.BeginForm("Index", "Tasks", FormMethod.Get))
+{
+    <h>
+        Поиск по имени: @Html.TextBox("NameSearch", "")
+        Поиск по типу: @Html.DropDownList("TypeSearch", ViewBag.TaskTypes as SelectList, "Выберите тип")
+        <input type="submit" value="Search" />
+    </h>
+}
+<table class="table">
+    <thead>
+        <tr>
+
+            <th>
+                @Html.ActionLink("Описание", "Index", new { sortOrder = ViewBag.DescriptionSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Приоритет", "Index", new { sortOrder = ViewBag.PrioritySortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Проект", "Index", new { sortOrder = ViewBag.ProjectSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Исполнитель", "Index", new { sortOrder = ViewBag.ExecutorSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Автор", "Index", new { sortOrder = ViewBag.AuthorSortParm })
+            </th>
+            <th>
+                @Html.ActionLink("Статус", "Index", new { sortOrder = ViewBag.StatusTaskSortParm })
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Project.Name)
+            </td>
+            <td>
+                 @Html.DisplayFor(modelItem => item.Executor.LastName)  @Html.DisplayFor(modelItem => item.Executor.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author.LastName)   @Html.DisplayFor(modelItem => item.Author.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StatusTask.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id" value="Изменить" >Изменить</a> |
+                @using (Html.BeginForm())
+                {
+                    if (!ViewBag.isEmployee)
+                    {
+                        @Html.Display("  ");
+                        <input type="submit" asp-action="Delete" asp-route-id="@item.Id" value="Отменить" />
+                    
+                    }
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

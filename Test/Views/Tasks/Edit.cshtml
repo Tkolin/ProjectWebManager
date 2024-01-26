@@ -1,0 +1,128 @@
+﻿@model Test.Models.Task
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Employee> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+    ViewBag.isManager = await UserManager.IsInRoleAsync(user, "projectmanager");
+    ViewBag.isSupervisor = await UserManager.IsInRoleAsync(user, "supervisor");
+    ViewBag.isEmployee = await UserManager.IsInRoleAsync(user, "employee");
+}
+<h1>Редактирование</h1>
+
+<h4>Задача:</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="ProjectId" class="control-label">Проект</label>
+                @{
+                    if ((Model.ProjectId != null && Model.ProjectId != 0) || ViewBag.isEmployee)
+                    {
+                        <select asp-for="ProjectId" class="form-control" asp-items="ViewBag.ProjectId" disabled>
+                            <option value="@Model.ProjectId" selected>@ViewBag.ProjectName</option>
+                        </select>
+                        <input type="hidden" asp-for="ProjectId" />
+                    }
+                    else
+                    {
+                        <select asp-for="ProjectId" class="form-control" asp-items="ViewBag.ProjectId"></select>
+                    }
+                }
+
+                <input type="hidden" asp-for="ProjectId" />
+            </div>
+            <div class="form-group">
+                <label asp-for="AuthorId" class="control-label">Автор задачи</label>
+                @{
+                    if ((Model.ProjectId != null && Model.ProjectId != 0) || ViewBag.isEmployee)
+                    {
+                        <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId" disabled>
+                            <option value="@Model.AuthorId" selected>@ViewBag.FullName</option>
+                        </select>
+                        <input type="hidden" asp-for="AuthorId" />
+                    }
+                    else
+                    {
+                        <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId"></select>
+                        <span asp-validation-for="AuthorId" class="text-danger"></span>
+
+                    }
+                }
+            </div>
+            <div class="form-group">
+                 <label asp-for="ExecutorId" class="control-label">Исполнитель задачи</label>
+                @{
+                    if (ViewBag.isEmployee)
+                    {
+                        <select asp-for="ExecutorId" class="form-control" asp-items="ViewBag.ExecutorId" disabled></select>
+                        <input type="hidden" asp-for="ExecutorId" />
+                    }
+                    else
+                    {
+                        <select asp-for="ExecutorId" class="form-control" asp-items="ViewBag.ExecutorId"></select>
+                        <span asp-validation-for="ExecutorId" class="text-danger"></span>
+
+                    }
+                }
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label">Описание</label>
+                @{
+                    if (ViewBag.isEmployee)
+                    {
+                        <input asp-for="Description" class="form-control" disabled/>
+                        <input type="hidden" asp-for="Description" />
+                    }
+                    else
+                    {
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+
+                    }
+                }
+
+            </div>
+            <div class="form-group">
+                <label asp-for="Priority" class="control-label">Приоритет</label>
+                @{
+                    if (ViewBag.isEmployee)
+                    {
+                        <input asp-for="Priority" class="form-control" disabled/>
+                        <input type="hidden" asp-for="Priority" />
+                    }
+                    else
+                    {
+                        <input asp-for="Priority" class="form-control" />
+                        <span asp-validation-for="Priority" class="text-danger"></span>
+                    }
+                }           
+            </div>
+            <div class="form-group">
+                <label asp-for="StatusId" class="control-label">Статус</label>
+                <select asp-for="StatusId" class="form-control" asp-items="ViewBag.StatusId"></select>
+                <span asp-validation-for="StatusId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <form asp-action="BackSupported">
+        <input type="submit" value="Вернуться к списку" class="btn btn-primary" />
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
